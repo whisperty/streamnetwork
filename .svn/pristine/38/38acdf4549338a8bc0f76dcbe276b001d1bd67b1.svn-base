@@ -1,0 +1,128 @@
+<?xml version="1.0" encoding="utf-8"?>
+<mx:TitleWindow xmlns:mx="http://www.adobe.com/2006/mxml"
+				layout="vertical" 
+				verticalAlign = "middle"
+				showCloseButton="false">
+	<mx:Script>
+		<![CDATA[
+			import mx.managers.PopUpManager;
+			import mx.events.CloseEvent;
+			import org.act.od.impl.model.*;
+			import mx.collections.ArrayCollection;
+			private var fileName :String;
+			
+			/*[Bindable]
+			public var cards:ArrayCollection = new ArrayCollection(
+				[ {label:"IMSI",data:1}, //这样的数组分配方式也是第一次见:) 经过分析才学习到:这里的"data"似乎是自定义的变量名,label是组件"label"
+					{label:"event_type", data:2}, 
+					{label:"Duration", data:3} ,
+					
+					{label:"MSISDN",data:1}, //这样的数组分配方式也是第一次见:) 经过分析才学习到:这里的"data"似乎是自定义的变量名,label是组件"label"
+					{label:"IMEI", data:2}, 
+					{label:"MSISDN", data:3} ,
+					
+					{label:"VLR",data:1}, //这样的数组分配方式也是第一次见:) 经过分析才学习到:这里的"data"似乎是自定义的变量名,label是组件"label"
+					{label:"cause", data:2}, 
+					{label:"HLR", data:3} ,
+					
+					{label:"sour_lac",data:1}, //这样的数组分配方式也是第一次见:) 经过分析才学习到:这里的"data"似乎是自定义的变量名,label是组件"label"
+					{label:"sour_ci", data:2}, 
+					{label:"State", data:3} ,
+					{label:"end_ci", data:2}, 
+					{label:"cause_ID", data:3} ,
+					{label:"LAC", data:2},
+					{label:"dest_lac",data:1},
+					{label:"dest_ci",data:2},
+					{label:"oppo_num",data:3},
+					{label:"Send_Stamp",data:1},
+					{label:"Receive_Stamp",data:3}
+					
+				]);
+			
+			[Bindable]
+			public var operators:ArrayCollection = new ArrayCollection(
+				[ {label:">",data:1}, //这样的数组分配方式也是第一次见:) 经过分析才学习到:这里的"data"似乎是自定义的变量名,label是组件"label"
+					{label:"<", data:2}, 
+					{label:"==", data:3} ,
+					
+					{label:"!=",data:1}, //这样的数组分配方式也是第一次见:) 经过分析才学习到:这里的"data"似乎是自定义的变量名,label是组件"label"
+				]);*/
+			
+			internal function onCancleHandle(event :MouseEvent) :void {
+				PopUpManager.removePopUp(this);
+			}
+			
+			internal function onConfirmHandle(event :MouseEvent) :void {
+				
+				//fileName = fn.text;
+				this.dispatchEvent(new CloseEvent(CloseEvent.CLOSE));
+				PopUpManager.removePopUp(this);
+			}
+			internal function confirm():void{
+				//fileName = fn.text;
+				this.dispatchEvent(new CloseEvent(CloseEvent.CLOSE));
+				PopUpManager.removePopUp(this);
+			}
+			public function getText():String{
+				return fileName;
+			}
+			public function setTitle(title:String):void{
+				this.title="Project property";
+				//this.fn.setFocus();
+			}
+			public function setRenameTitle(title:String):void{
+				this.title=title;
+			}
+			public function setText(text:String):void{
+				//this.fn.text = text;
+				//this.fn.selectedIndex = 0;
+				//this.fn.setFocus();
+			}
+		]]>
+	</mx:Script>
+	
+	
+	
+	
+	<!--<mx:HBox x="10" y="28" height="33">
+		<mx:Label text="property: "	/>
+		<mx:ComboBox id="fn"  dataProvider="{cards}"/>
+		<mx:Label height="22" x="152" y="28" text="Bool Operator: "/>
+		<mx:ComboBox width="54" height="21" dataProvider="{operators}"/>
+		<mx:Label x="324" y="28" height="21" text="value: "/>
+		<mx:TextInput width="84"/>
+	</mx:HBox>-->
+	<mx:HBox height="80%" width="100%">
+		<mx:VBox height="100%" width="50%">
+			<mx:CheckBox label="IMSI" id="A1" selected= "false"/>
+			<mx:CheckBox label="IMEI" id="A2" selected= "false"/>
+			<mx:CheckBox label="event_type" id="A3" selected= "false"/>
+			<mx:CheckBox label="Time_Stamp" id="A4" selected= "false"/>
+			<mx:CheckBox label="Duration" id="A5" selected= "false"/>
+			<mx:CheckBox label="start_lac" id="A6" selected= "false"/>
+			<mx:CheckBox label="start_ci" id="A7" selected= "false"/>
+			<mx:CheckBox label="end_lac" id="A8" selected= "false"/>
+			<mx:CheckBox label="end_ci" id="A9" selected= "false"/>
+			<mx:CheckBox label="sour_lac" id="A10" selected= "false"/>
+		</mx:VBox>
+		<mx:VBox height="100%" width="50%">
+			<mx:CheckBox label="sour_ci" id="A11" selected= "false"/>
+			<mx:CheckBox label="dest_lac" id="A12" selected= "false"/>
+			<mx:CheckBox label="dest_ci" id="A13" selected= "false"/>
+			<mx:CheckBox label="cause" id="A14" selected= "false"/>
+			<mx:CheckBox label="HLR" id="A15" selected= "false"/>
+			<mx:CheckBox label="VLR" id="A16" selected= "false"/>
+			<mx:CheckBox label="MSISDN" id="A17" selected= "false"/>
+			<mx:CheckBox label="oppo_num" id="A18" selected= "false"/>
+			<mx:CheckBox label="other_num" id="A19" selected= "false"/>
+			<mx:CheckBox label="Res2" id="A20" selected= "false"/>
+		</mx:VBox>
+	</mx:HBox>
+	<mx:HRule width="100%"/>
+	<mx:HBox width="100%" horizontalAlign="center" horizontalCenter="0">
+		<mx:Label width="35%" visible = "false"/>
+		<mx:Button label="Confirm"  click="onConfirmHandle(event)" />
+		<mx:Button label="Cancel" click="onCancleHandle(event)" />
+		<mx:Label width="35%" visible = "false"/>
+	</mx:HBox>
+</mx:TitleWindow>

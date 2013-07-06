@@ -1,0 +1,21 @@
+package org.act.od.impl.events
+{
+	import flash.events.Event;
+	
+	import mx.collections.ArrayCollection;
+	
+	public class CustomOperatorUpdateEvent extends Event
+	{
+		public var cos:ArrayCollection;
+		public var changeType:int;
+		public function CustomOperatorUpdateEvent(type:String, op:Object, bubbles:Boolean=false)
+		{
+			super(type, bubbles);
+			this.cos = ArrayCollection(op);
+		}
+		public override function clone():Event
+		{
+			return new CustomOperatorUpdateEvent(type, cos);
+		}
+	}
+}

@@ -1,0 +1,292 @@
+<?xml version="1.0" encoding="utf-8"?>
+<mx:Application xmlns:mx="http://www.adobe.com/2006/mxml" layout="absolute" creationComplete="init()"
+	xmlns:v="component.*">
+	<mx:Style source="StreamProcess.css"/>
+	<mx:Script>   
+		<![CDATA[   
+			import Pattern.AttributeModel;
+			import Pattern.OperatorClass;
+			import Pattern.PatternModel;
+			import mx.rpc.events.ResultEvent;
+		
+			
+			import mx.rpc.events.FaultEvent;
+			import mx.rpc.events.ResultEvent;
+			import mx.controls.Alert;
+			import mx.messaging.ChannelSet;
+			import mx.rpc.AsyncToken;
+			import mx.rpc.AsyncResponder;
+			import mx.messaging.channels.AMFChannel;
+			import mx.messaging.config.ServerConfig;
+			import fileoperation.LoadFromFile;
+			import fileoperation.SaveToFile;
+	
+			import mx.collections.ArrayCollection;
+			import mx.controls.Alert;
+			import mx.controls.Menu;
+			import mx.managers.PopUpManager;
+			import mx.rpc.events.ResultEvent;
+			
+			import org.act.od.impl.events.AccountEvent;
+			
+			public const xmlUrl:String = "files/UserInfo.xml";
+			private var filename:String = "network1.xml";
+			public const patternUrl:String = "files/Patterns.xml";
+			public const operatorUrl:String ="files/Operators.xml";
+			[Bindable]
+			private var loginInfo:ArrayCollection; 
+			[Bindable]
+			public var cur:Boolean = false;
+			
+			private var curState:String="none";
+			private const POPUP_OFFSET:int = 10;
+			private var saveFile:SaveToFile = new SaveToFile();
+			private var loadFromFile:LoadFromFile = new LoadFromFile();
+			private var xmlFilter:FileFilter = new FileFilter("XMLs(*.xml)", "*.xml");
+			private var file:FileReferenceList = new FileReferenceList();
+			private var f:FileReference;
+			
+			[Bindable]
+			public var pms:ArrayCollection = new ArrayCollection();
+			[Bindable]
+			public var cos:ArrayCollection = new ArrayCollection();
+			private var channelSet:ChannelSet = null;
+			private function init():void
+			{
+				//Alert.show("ok!");
+				loadInfo.send();
+				getPatterns.send();
+				getOperators.send();
+			
+			}
+			
+			
+			private function patternResultHandler(event:ResultEvent):void
+			{
+				//Alert.show("ok!");
+				var patternColl:XML = event.result as XML;
+				Alert.show(patternColl);
+				PatternsintoModel(patternColl);
+				
+			}
+			
+			public function PatternsintoModel(patternColl:XML):void
+			{
+				
+				for each (var p:XML in patternColl..pattern)
+				{
+					var pm:PatternModel = new PatternModel(String(p.@name), Number(p.@attriNum), String(p.@description));
+					for each (var q:XML in p..attribute)
+					{
+						var attri:AttributeModel = new AttributeModel(String(q.@name), String(q.@type), String(q.@description));
+						pm.addAttri(attri);
+					}
+					pms.addItem(pm);
+				}
+			}
+			
+			private function operatorResultHandler(event:ResultEvent):void
+			{
+				var operatorColl:XML = event.result as XML;
+				Alert.show(operatorColl);
+				for each(var p:XML in operatorColl..operator)
+				{
+					
+					var co:OperatorClass = new OperatorClass(String(p.@name), String(p.@descri), String(p.@filename));
+					for each (var q:XML in p..para)
+					{
+						var para:AttributeModel = new AttributeModel(String(q.@name), String(q.@type), String(q.@descri));
+						co.addPara(para);
+					}
+					for each (var k:XML in p..output)
+					{
+						var output:AttributeModel = new AttributeModel(String(k.@name), String(k.@type), String(k.@descri));
+						co.addOutput(output);
+					}
+					cos.addItem(co);
+				}
+			}
+			
+			
+			private function goLogin(e:Event):void{
+				
+				var newEvent1:AccountEvent = new AccountEvent(AccountEvent.ADD);
+				newEvent1.strings = "This has been modified";
+				dispatchEvent(newEvent1);
+				var loginStatus:Boolean = false;
+				for(var i:int = 0; i<loginInfo.length; i++)
+				{
+					//fdsgfd
+					
+					if(username.text == loginInfo[i].username && userpwd.text == loginInfo[i].password)
+					{
+						loginStatus = true;
+					}
+				}
+				if(loginStatus){
+					this.currentState = "Entered";
+				}
+				else
+					this.currentState = "";
+			}   
+			private function resultHandler(event:ResultEvent):void{   
+				loginInfo = event.result.LoginInfo.Login;           
+			}
+			
+			private function runNet():void
+			{
+				designer.ordesigner.editorChange2RunningState();
+			}
+			private function showWindow():void
+			{
+				file.browse([xmlFilter]); 
+				file.addEventListener(Event.SELECT, onFileSelect); 
+				file.addEventListener(ProgressEvent.PROGRESS, progressHandle); 
+				file.addEventListener(Event.COMPLETE, completeHandle); 
+			}
+			private function onFileSelect(event:Event):void
+			{
+				for(var i:int=0;i<file.fileList.length;i++){ 
+					f = FileReference(file.fileList[i]);  
+					//returnedName.text=f.name;
+					
+					f.load();
+					f.addEventListener(ProgressEvent.PROGRESS, progressHandle); 
+					f.addEventListener(Event.COMPLETE, completeHandle); 
+					
+				}
+				
+			}
+			private function progressHandle(event : ProgressEvent) : void { 
+				/*progressLabel.text = "complete " + event.bytesLoaded + " bytes"; 
+				var fileUploadPercent : uint = event.bytesLoaded / event.bytesTotal * 100; 
+				uploadProgressBar.setProgress(fileUploadPercent, 100); 
+				uploadProgressBar.label = "Complete " + fileUploadPercent + "%"; */
+			} 
+			
+			private function completeHandle(event : Event) : void {
+				cur = true;
+				var data:XML = XML(f.data.toString());
+				Alert.show("成功载入网络:"+f.name);
+				loadFromFile.data=data;
+				loadFromFile.filename=f.name;
+				loadFromFile.patMods = pms;
+				this.currentState="Construct";
+				loadFromFile.getNet();
+			} 
+			
+		
+			
+	
+		]]>   
+	</mx:Script>
+	<rds:Services xmlns:rds="org.act.od.impl.business.*"/>
+
+	<mx:states>
+		<!--State1：Entered-->
+		<mx:State name="Entered">
+			<mx:RemoveChild target="{panel1}"/>
+			<mx:AddChild position="lastChild">
+				
+				<mx:VBox height="100%" width="100%">
+					<mx:ApplicationControlBar width="100%" height="37" dock="true" fontSize="15">
+						<mx:Label text="数据流处理系统 |     欢迎您!"/>
+						<mx:Label text="{username.text}"/>
+						<mx:Spacer width="100%"/>
+						<mx:Button id="help" label="帮助" click="" alpha="0.0"/>
+						<mx:Button id="exit" label="退出" click="this.currentState='Exited'" alpha="0.0"/>
+						
+					</mx:ApplicationControlBar>
+					<mx:HBox width="100%" height="100%" id="hbox1">
+						<mx:VBox id="vbox1" width="130" height="100%" backgroundAlpha="0.2"
+								 backgroundColor="#FFFFFF" fontSize="20" fontWeight="bold">
+							<mx:Button click="this.currentState='Entered'" styleName="home" width="100%"/>
+							<mx:Button click="this.currentState='Construct'" styleName="construct" width="100%"/>
+							<mx:Button click="saveFile.saveNet()" styleName="save" width="100%" id="saveNetButton" enabled="false"/>
+							<mx:Button id="button1" width="100%" click="showWindow();" styleName="load"/>
+							<mx:Button click="runNet()" styleName="run" width="100%" id="runNetButton" enabled="false"/>
+							<mx:Button click="this.currentState='Option'" styleName="option" width="100%"/>
+							<!--<mx:Button click="this.currentState='Operator'" styleName="operator" width="100%"/>-->
+						</mx:VBox>
+						<v:Homepage id="homepage" width="100%" height="100%"/>	
+					</mx:HBox>
+					<mx:HBox width="100%" height="26" fontSize="15" color="#F8FCFD">
+						<mx:Label text="数据流处理系统"/>
+						<mx:Spacer width="100%"/>
+						<mx:Label text="(c) 2013 China Mobile"/>
+					</mx:HBox>
+					
+				</mx:VBox>
+			</mx:AddChild>
+			<mx:SetProperty target="{image1}" name="source" value="img/back2.jpg"/>
+			<mx:SetProperty target="{logo}" name="visible" value="false"/>
+		</mx:State>
+		
+		<!--State2:Exit-->
+		<mx:State name="Exited">
+			<mx:RemoveChild target="{panel1}"/>
+			<mx:AddChild position="lastChild">
+				<mx:HBox width="247" height="34" verticalCenter="0" horizontalCenter="0">
+					<mx:Label text="您已退出系统" fontSize="23"/>
+					<mx:Button label="重新登录" width="87" height="31" alpha="0.32" fontSize="14" cornerRadius="8" click="this.currentState=''"/>
+				</mx:HBox>
+			</mx:AddChild>
+			<mx:SetProperty target="{image1}" name="source" value="img/back3.jpg"/>
+			<mx:RemoveChild target="{logo}"/>
+		</mx:State>
+		
+		<!--State3:Construct-->
+		<mx:State name="Construct" basedOn="Entered">
+			<mx:RemoveChild target="{homepage}"/>
+			<mx:AddChild relativeTo="{hbox1}" position="lastChild">
+				<v:OrDesinger id="designer" cur="{cur}" pms="{pms}">
+				</v:OrDesinger>
+			</mx:AddChild>
+			<mx:SetProperty target="{saveNetButton}" name="enabled" value="true"/>
+			<mx:SetProperty target="{runNetButton}" name="enabled" value="true"/>
+			
+		</mx:State>
+		
+		<!--State4:Option-->
+		<mx:State name="Option" basedOn="Entered">
+			<mx:RemoveChild target="{homepage}"/>
+			<mx:AddChild position="lastChild" relativeTo="{hbox1}">
+				<mx:Canvas width="100%" height="100%" alpha="0.9">
+					<v:Option width="80%" height="95%" alpha="0.8" borderStyle="outset"
+							  cornerRadius="0" fontFamily="细明体" fontSize="10" horizontalCenter="0"
+							  pms="{pms}" cos="{cos}" verticalCenter="0">
+					</v:Option>
+				</mx:Canvas>
+			</mx:AddChild>
+		</mx:State>
+		
+		<!--State5:Operator-->
+		<mx:State name="Operator" basedOn="Entered">
+			<mx:RemoveChild target="{homepage}"/>
+			<mx:AddChild position="lastChild" relativeTo="{hbox1}">
+				<mx:Canvas width="100%" height="100%" alpha="0.9">
+					<v:UpdateDeleteOperator width="60%" height="80%" alpha="0.8" borderStyle="outset"
+							  cornerRadius="0" fontFamily="细明体" fontSize="10" horizontalCenter="0" verticalCenter="0">
+					</v:UpdateDeleteOperator>
+				</mx:Canvas>
+			</mx:AddChild>
+		</mx:State>
+	</mx:states>
+	<mx:HTTPService id="loadInfo" url="{xmlUrl}" result="resultHandler(event)" /> 
+	<mx:HTTPService id="getPatterns" url="{patternUrl}" result="patternResultHandler(event)" resultFormat="e4x"/>
+	<mx:HTTPService id="getOperators" url="{operatorUrl}" result="operatorResultHandler(event)" resultFormat="e4x"/>
+	
+	<mx:Image width="100%" height="100%" scaleContent="true" autoLoad="true" maintainAspectRatio="false" id="image1" horizontalCenter="0" verticalCenter="0">
+		<mx:source>img/back1.jpg</mx:source>
+	</mx:Image>
+	<mx:Panel width="428" height="265" layout="absolute" fontSize="12" fontWeight="normal" horizontalCenter="0" verticalCenter="37" id="panel1" alpha="0.5" backgroundColor="#FBE5E5" cornerRadius="0">   
+		<mx:TextInput x="147" y="51" id="username" fontSize="12" text="mobile" width="180"/>   
+		<mx:TextInput x="147" y="95" id="userpwd" fontSize="12" displayAsPassword="true" text="mobile" width="180"/>   
+		<mx:Button x="160" y="154" label="登录" id="btn1" click="goLogin(event)" fontWeight="normal" fontSize="12"/>   
+		<mx:Label x="73" y="53" text="用户名：" fontSize="12" fontFamily="Arial"/>   
+		<mx:Label x="73" y="97" text="密   码：" fontSize="12"/>   
+		<mx:Button x="256" y="154" label="注册" fontSize="12" fontWeight="normal" id="btn2"/>   
+	</mx:Panel>   
+	<mx:Image id="logo" horizontalCenter="0" source="img/Logo1.png" verticalCenter="-100"/>
+	
+</mx:Application>

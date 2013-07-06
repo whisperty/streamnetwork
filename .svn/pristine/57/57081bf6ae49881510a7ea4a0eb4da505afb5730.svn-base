@@ -1,0 +1,19 @@
+package Pattern
+{
+	public class OperatorClass
+	{
+		public var name:String;
+		public var descri:String;
+		public var filename:String;
+		public function OperatorClass(name:String, descri:String, filename:String)
+		{
+			this.name = name;
+			this.descri = descri;
+			this.filename = filename;
+		}
+		public function toString():String
+		{
+			return name;
+		}
+	}
+}

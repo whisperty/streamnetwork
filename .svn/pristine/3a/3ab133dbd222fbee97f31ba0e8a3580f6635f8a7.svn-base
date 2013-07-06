@@ -1,0 +1,92 @@
+
+package  org.act.od.impl.business.delegates
+{
+	import com.adobe.cairngorm.business.ServiceLocator;
+	
+	import mx.collections.ArrayCollection;
+	import mx.controls.Alert;
+	import mx.rpc.AsyncToken;
+	import flash.utils.setInterval;
+	import mx.rpc.IResponder;
+	import mx.rpc.events.ResultEvent;
+	import mx.rpc.http.HTTPService;
+	import mx.rpc.remoting.RemoteObject;
+	import org.act.od.impl.model.OrDesignerModelLocator;
+	public class AccountDelegate
+	{
+		private var __locator:ServiceLocator=ServiceLocator.getInstance(); 
+		private var __service:HTTPService;
+		private var _object:RemoteObject;
+		private var __responder:IResponder;
+		private var _accoutns:ArrayCollection;
+		[Bindable]
+		public var filterOptions:Object = new Object();
+		[Bindable]
+		private var accounts:ArrayCollection =new ArrayCollection();	
+		public function AccountDelegate()
+		{
+		
+			_object 	=  (__locator.getRemoteObject("selectNetwork")); 
+		
+	
+		
+			
+			
+		}
+		public function listResult(e:ResultEvent):void{
+			//accounts.removeAll();
+			accounts = e.result as ArrayCollection;
+			if(accounts.length !=0 ){
+			//	Alert.show(accounts.getItemAt(0).state +"+++++++listResult");
+				OrDesignerModelLocator.getInstance().result1.addAllAt(accounts,0);			
+				accounts.removeAll();
+
+			}
+			
+		}
+		
+		public function listResult2(e:ResultEvent):void{
+			//Alert.show("listResult2");
+		//	accounts.removeAll();
+			accounts = e.result as ArrayCollection;
+			if(accounts.length !=0 ){
+			//	Alert.show(accounts.getItemAt(0).state +"+++++++");
+				OrDesignerModelLocator.getInstance().result2.addAllAt(accounts,0);
+			//	Alert.show(	OrDesignerModelLocator.getInstance().result2.length + "listResult2");
+				accounts.removeAll();
+			}
+			
+		}
+		
+	
+		private function getTime2():void {
+			
+			
+			
+			_object.getNext1000();
+			_object.addEventListener(ResultEvent.RESULT, listResult2)
+		}
+		
+		
+		private function getTime():void {
+	
+			_object.getNext100();
+			_object.addEventListener(ResultEvent.RESULT, listResult)
+				
+		
+		}
+		
+		public function loadPhotos( fileID:String,outputID:String,options:Object):void
+		{
+		
+			
+			 _object.init(options,fileID,outputID);
+			 _object.SelectNetwork1();
+			 setInterval(getTime, 100); // 1 second
+		//	 setInterval(getTime2, 100); // 1 second
+			
+			
+	
+		}
+	}
+}

@@ -1,0 +1,17 @@
+<operators>
+	<operator name="元组拆分" descri="description1">
+		<para name="para1" descri="1st para"/>
+		<para name="para2" descri="1+1=2"/>
+		<output name="o1" descri="you need me"/>
+		<output name="o2" descri="the more the better"/>
+	</operator>
+	<operator name="提取手机号" descri="description2">
+		<output name="o11" descri="one is enough"/>
+	</operator>
+	<operator name="提取时间信息" descri="descri3">
+	</operator>
+	<operator name="提取Lac与Ci信息" descri="descri4">
+	</operator>
+	<operator name="元组合并" descri="descri5">
+	</operator>
+</operators>

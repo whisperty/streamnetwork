@@ -1,0 +1,55 @@
+
+package  org.act.od.impl.business.delegates
+{
+	import com.adobe.cairngorm.business.ServiceLocator;
+	
+	import mx.collections.ArrayCollection;
+	import mx.controls.Alert;
+	import mx.rpc.AsyncToken;
+	import mx.rpc.IResponder;
+	import mx.rpc.events.ResultEvent;
+	import mx.rpc.http.HTTPService;
+	import mx.rpc.remoting.RemoteObject;
+	import org.act.od.impl.model.OrDesignerModelLocator;
+	public class AccountDelegate
+	{
+		private var __locator:ServiceLocator=ServiceLocator.getInstance(); 
+		private var __service:HTTPService;
+		private var _object:RemoteObject;
+		private var __responder:IResponder;
+		private var _accoutns:ArrayCollection;
+		[Bindable]
+		public var filterOptions:Object = new Object();
+		[Bindable]
+		private var accounts:ArrayCollection = null;	
+		public function AccountDelegate()
+		{
+		
+			_object 	=  (__locator.getRemoteObject("selectNetwork")); 
+		
+	
+		
+			
+			
+		}
+		public function listResult(e:ResultEvent):void{
+			
+			OrDesignerModelLocator.getInstance().result1 = (accounts = e.result as ArrayCollection);
+			
+			
+			
+		}
+		
+		public function loadPhotos( fileID:String,outputID:String,options:Object):void
+		{
+		
+			
+			 _object.init(options,fileID,outputID);
+		
+			
+			 _object.SelectNetwork1();
+			 _object.addEventListener(ResultEvent.RESULT, listResult)
+	
+		}
+	}
+}

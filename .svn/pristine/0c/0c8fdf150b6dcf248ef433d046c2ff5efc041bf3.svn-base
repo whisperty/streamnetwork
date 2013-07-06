@@ -1,0 +1,95 @@
+package Pattern
+{
+	import mx.collections.ArrayCollection;
+	import mx.collections.IViewCursor;
+	import mx.collections.Sort;
+	import mx.collections.SortField;
+
+	public class PatternModel
+	{
+		[Bindable]
+		public var patternName:String;
+		[Bindable]
+		public var attriNum:int;
+		[Bindable]
+		public var descri:String;
+		[Bindable]
+		public var attributes:ArrayCollection;
+		private var cursor:IViewCursor;
+		public function PatternModel(name:String=null, num:int=0, descri:String=null)
+		{
+			patternName = name;
+			attriNum = num;
+			this.descri = descri;
+			attributes = new ArrayCollection();
+		}
+		public function toString():String
+		{
+			return patternName;
+		}
+		public function addAttri(item:AttributeModel):void{
+			manageAddAttri(item);
+			attriNum += 1;
+		}
+		
+		private function sortAttri():void{
+			var attriSort:Sort=new Sort();
+			var sortField:SortField=new SortField("name");
+			attriSort.fields=new Array(sortField);
+			attributes.sort=attriSort;
+			attributes.refresh();
+		}
+		
+		private function manageAddAttri(item:AttributeModel):void{
+			if (isAttriExist(item)){
+				updateAttri(item);
+			}else{
+				attributes.addItem(item);
+			}
+		}
+		
+		private function isAttriExist(item:AttributeModel):Boolean{
+			var sci:AttributeModel = getAttri(item);
+			if(sci == null){
+				return false;
+			} else {
+				return true;
+			}
+		}
+		
+		private function getAttri(item:AttributeModel):AttributeModel{
+			cursor = attributes.createCursor();
+			sortAttri();
+			var found:Boolean = cursor.findFirst(item);
+			if(found){
+				var sci:AttributeModel = cursor.current as AttributeModel;
+			}else{
+				return null;
+			}
+			return sci;
+		}
+		
+		private function updateAttri(item:AttributeModel):void{
+			var sci:AttributeModel = cursor.current as AttributeModel;
+			sci.name = item.name;
+			sci.type = item.type;
+			sci.descri = item.descri;
+		}
+		
+		public function removeAttri(attri:AttributeModel):void{
+			var sci:AttributeModel = getAttri(attri);
+			if(sci != null){
+				cursor.remove();
+			}
+			attriNum -= 1;
+		}
+		public function getPatAtt():ArrayCollection{
+			var atts:ArrayCollection = new ArrayCollection();
+			for each (var item:AttributeModel in attributes)
+			{
+				atts.addItem({name: item.name, value: item.type, flag: "false"});
+			}
+			return atts;
+		}
+	}
+}
